@@ -8,11 +8,18 @@ $(function () {
     },
     'Please enter your strong password',
   );
+  $.validator?.addMethod(
+    'validateEmail',
+    function (value) {
+      return /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value);
+    },
+    'Please enter valid email address',
+  );
   $('#formLogin')?.validate({
     rules: {
       email: {
         required: true,
-        email: true,
+        validateEmail: true,
       },
       password: {
         required: true,
@@ -44,8 +51,12 @@ $(function () {
     },
   });
   $('#formLogin').on('change', function (event, salutation, name) {
-    console.log(123);
     if ($('#formLogin').valid) {
+      $('#login-error').remove();
+    }
+  });
+  $('#formRegister').on('change', function (event, salutation, name) {
+    if ($('#formRegister').valid) {
       $('#login-error').remove();
     }
   });

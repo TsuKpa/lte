@@ -18,11 +18,15 @@ export class AuthController {
 
   @Get('/register')
   @Render('auth/register')
-  renderRegister() {
-    const viewData = [];
-    viewData['title'] = 'User Register - Online Store';
-    viewData['subtitle'] = 'User Register';
-    return { viewData };
+  renderRegister(@Req() request) {
+    let isShowError = false; // check show error when login failed
+    if (request.session.notification?.countShowErrorRegister === 0) {
+      isShowError = true;
+      request.session.notification.countShowErrorRegister = 1;
+    }
+    return {
+      flashErrors: isShowError ? request.session.flashErrors : [],
+    };
   }
 
   @Post('/register')
@@ -37,11 +41,20 @@ export class AuthController {
       request.session.flashErrors = errors;
       return response.redirect('/auth/register');
     } else {
-      await this.usersService.createUser(body);
+      const user = await this.usersService.findOne(body.email);
+      if (!user) {
+        await this.usersService.createUser(body);
+        request.session.notification = {
+          countShowToast: 0,
+        };
+        return response.redirect('/auth/login');
+      }
       request.session.notification = {
-        countShowToast: 0,
+        ...request.session.notification,
+        countShowErrorRegister: 0, // show error
       };
-      return response.redirect('/auth/login');
+      request.session.flashErrors = ['Email already registered'];
+      return response.redirect('/auth/register');
     }
   }
 
