@@ -43,7 +43,12 @@ $(function () {
       $(element).removeClass('is-invalid');
     },
   });
-
+  $('#formLogin').on('change', function (event, salutation, name) {
+    console.log(123);
+    if ($('#formLogin').valid) {
+      $('#login-error').remove();
+    }
+  });
   // Register form validate
   $('#formRegister')?.validate({
     rules: {

@@ -5,6 +5,7 @@ import { join } from 'path';
 import * as hbs from 'hbs';
 import * as hbsUtils from 'hbs-utils';
 import * as session from 'express-session';
+import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -16,36 +17,36 @@ async function bootstrap() {
   app.setViewEngine('hbs');
   app.use(
     session({
-      secret: 'secret',
+      secret: process.env.SECRET,
       resave: false,
       saveUninitialized: false,
     }),
   );
-  app.use(function (req, res, next) {
-    res.locals.session = req.session;
-    const flashErrors: string[] = req.session.flashErrors;
-    if (flashErrors) {
-      res.locals.flashErrors = flashErrors;
-      req.session.flashErrors = null;
-    }
-    next();
-  });
-  // app.use('/admin*', function (req, res, next) {
-  //   if (req.session.user && req.session.user.role == 'admin') {
-  //     next();
-  //   } else {
-  //     res.redirect('/');
-  //   }
-  // });
   app.use('/home', function (req, res, next) {
-    console.log(req.session);
     if (req.session.user) {
       next();
     } else {
       res.redirect('/auth/login');
     }
   });
+  app.use('/auth/login', function (req, res, next) {
+    if (!req.session.user) {
+      next();
+    } else {
+      res.redirect('/home');
+    }
+  });
 
-  await app.listen(process.env.PORT);
+  app.use('/auth/register', function (req, res, next) {
+    if (!req.session.user) {
+      next();
+    } else {
+      res.redirect('/home');
+    }
+  });
+
+  await app.listen(process.env.PORT || 3000);
+  const logger = new Logger();
+  logger.warn(`Server is running on port ${process.env.PORT}`);
 }
 bootstrap();
