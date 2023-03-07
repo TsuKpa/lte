@@ -66,6 +66,11 @@ $(function () {
       $('#login-error').remove();
     }
   });
+  $('#formForgot').on('change', function (event, salutation, name) {
+    if ($('#formForgot').valid) {
+      $('#login-error').remove();
+    }
+  });
   // Register form validate
   $('#formRegister')?.validate({
     rules: {

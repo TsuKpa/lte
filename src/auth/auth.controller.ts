@@ -68,7 +68,7 @@ export class AuthController {
       request.session.flashErrors = errors;
       return response.redirect('/auth/register');
     } else {
-      const user = await this.usersService.findOne(body.email);
+      const user = await this.usersService.findOne({ email: body.email });
       if (!user) {
         await this.usersService.createUser(body);
         // request.session.notification = {
@@ -131,7 +131,52 @@ export class AuthController {
 
   @Get('/forgot')
   @Render('auth/password/forgot-password')
-  forgotPassword() {}
+  renderForgotPassword(@Req() request) {
+    let isShowError = false; // check show error when login failed
+    if (request.session.notification?.countShowError === 0) {
+      isShowError = true;
+      request.session.notification.countShowError = 1;
+    }
+    return {
+      flashErrors: isShowError ? request.session.flashErrors : [],
+    };
+  }
+
+  @Post('/forgot')
+  async forgotPassword(
+    @Body() body: { email: string },
+    @Res() response,
+    @Req() request,
+  ) {
+    const { email } = body;
+    const user = await this.usersService.findOne({ email, isActive: true });
+    if (user) {
+      await this.usersService.sendEmailForgot(email);
+      request.session.email = email;
+      return response.redirect('/auth/notifi-forgot');
+    } else {
+      request.session.flashErrors = ['Email is not exist!'];
+      console.log(request.session);
+      request.session.notification = {
+        ...request.session.notification,
+        countShowError: 0, // show error
+      };
+      return response.redirect('/auth/forgot');
+    }
+  }
+
+  @Get('/notifi-forgot')
+  @Render('auth/password/notifi-forgot')
+  renderNotifiForgot(@Req() request) {
+    const email = request.session.email || 'test@example.com';
+    return {
+      email,
+    };
+  }
+
+  @Get('/changepwd')
+  @Render('auth/password/change-password')
+  renderChangePassword() {}
 
   @Get('/logout')
   @Redirect('/')

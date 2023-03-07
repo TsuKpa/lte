@@ -1,0 +1,19 @@
+{{#> auth}}
+  {{#*inline "content"}}
+      <div class="register-logo">
+        <a><b>Admin</b>LTE</a>
+      </div>
+      <div class="card notification-container">
+        <div class="card-body d-flex flex-column align-items-center pt-0">
+          <img src="/img/register/email.svg" alt="" class="email-logo">
+            <div class="d-flex flex-column align-items-center">
+                <div>
+                    Hello &nbsp;<span><b><i>{{ email }}</i></b></span>,
+                </div>
+                <div>Please check your email to change password!</div>
+            </div>
+        </div>
+      </div>
+    </div>
+  {{/inline}}
+{{/auth}}

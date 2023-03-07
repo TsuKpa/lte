@@ -44,6 +44,38 @@ export class UsersService {
     }
   }
 
+  async sendEmail(
+    emailTo: string,
+    content: {
+      subject: string;
+      html: string;
+    },
+  ): Promise<void> {
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.ethereal.email',
+      port: 587,
+      auth: {
+        user: 'lorna.emmerich30@ethereal.email',
+        pass: 'EKEk9v2TnyFvkzVcZJ',
+      },
+    });
+
+    const mailOptions = {
+      from: 'nqnamfe1996@gmail.com',
+      to: emailTo,
+      subject: 'Verify your account',
+      html: content,
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error, 'Error sending mail');
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+  }
+
   async sendEmailVerify(email: string): Promise<void> {
     if (!email) return;
     const salt = await bcrypt.genSalt();
@@ -54,17 +86,7 @@ export class UsersService {
       hash: hashedString,
     });
     await emailHash.save();
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      auth: {
-        user: 'lorna.emmerich30@ethereal.email',
-        pass: 'EKEk9v2TnyFvkzVcZJ',
-      },
-    });
-    const mailOptions = {
-      from: 'nqnamfe1996@gmail.com',
-      to: email,
+    await this.sendEmail(email, {
       subject: 'Verify your account',
       html:
         '<h1>Welcome user ' +
@@ -73,14 +95,28 @@ export class UsersService {
         `http://${process.env.DOMAIN}:${process.env.PORT}/auth/verify/` +
         hashedString +
         '"></b>',
-    };
+    });
+  }
 
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log(error, 'Error sending mail');
-      } else {
-        console.log('Email sent: ' + info.response);
-      }
+  async sendEmailForgot(email: string): Promise<void> {
+    if (!email) return;
+    const salt = await bcrypt.genSalt();
+    let hashedString: string = await bcrypt.hash(email, salt);
+    hashedString = hashedString.replace(/\//g, 'f');
+    const emailHash = new this.emailModel({
+      email,
+      hash: hashedString,
+    });
+    await emailHash.save();
+    await this.sendEmail(email, {
+      subject: 'Change your password',
+      html:
+        '<h1>Welcome user ' +
+        email +
+        '!</h1><p>Please click the link below to change your password:</p><b><a href="' +
+        `http://${process.env.DOMAIN}:${process.env.PORT}/auth/changepwd/` +
+        hashedString +
+        '"></b>',
     });
   }
 
@@ -106,8 +142,8 @@ export class UsersService {
     return null;
   }
 
-  async findOne(email: string): Promise<UserEntity> {
-    const user = await this.userModel.findOne({ email }).exec();
+  async findOne(data: Partial<UserEntity>): Promise<UserEntity> {
+    const user = await this.userModel.findOne(data).exec();
     return user || null;
   }
 
