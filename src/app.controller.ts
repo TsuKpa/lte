@@ -10,7 +10,7 @@ export class AppController {
   @Render('index')
   home() {}
 
-  @Get('/about')
-  @Render('about')
+  @Get('/404')
+  @Render('404')
   about() {}
 }

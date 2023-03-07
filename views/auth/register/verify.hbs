@@ -1,0 +1,23 @@
+{{#> auth}}
+  {{#*inline "content"}}
+      <div class="register-logo">
+        <a><b>Admin</b>LTE</a>
+      </div>
+      <div class="card notification-container">
+        <div class="card-body d-flex flex-column align-items-center pt-0">
+          <img src="/img/register/verify-email.svg" alt="" class="email-logo">
+            <div class="d-flex flex-column align-items-center">
+                <div>
+                    Hello &nbsp;<span><b><i>{{ email }}</i></b></span>,
+                </div>
+                <div>Congratulations! Your account has been registered!</div>
+                    <a href="/auth/login" class="my-3 btn btn-primary btn-lg">
+                    Go to Sign in
+                    <i class="ml-2 fa fa-sign-in"></i>
+                    </a>
+            </div>
+        </div>
+      </div>
+    </div>
+  {{/inline}}
+{{/auth}}

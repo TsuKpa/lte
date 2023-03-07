@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Redirect,
   Render,
@@ -11,13 +12,14 @@ import {
 } from '@nestjs/common';
 import { UsersService } from '../models/users.service';
 import { UserValidator } from '../validators/user.validator';
+import Utils from '@utils/utils';
 
 @Controller('/auth')
 export class AuthController {
   constructor(private usersService: UsersService) {}
 
   @Get('/register')
-  @Render('auth/register')
+  @Render('auth/register/register')
   renderRegister(@Req() request) {
     let isShowError = false; // check show error when login failed
     if (request.session.notification?.countShowErrorRegister === 0) {
@@ -27,6 +29,31 @@ export class AuthController {
     return {
       flashErrors: isShowError ? request.session.flashErrors : [],
     };
+  }
+
+  @Get('/notifi-register')
+  @Render('auth/register/before-verify-email')
+  beforeVerifyRegister(@Req() request) {
+    const email = request.session.email || 'test@example.com';
+    return {
+      email,
+    };
+  }
+
+  @Get('/verify/:id')
+  @Render('auth/register/verify')
+  async verifyRegister(@Param('id') id) {
+    const hashEmail = await this.usersService.findHash(id);
+    if (hashEmail) {
+      const cloneEmail = Utils.cloneDeep(hashEmail);
+      await this.usersService.findOneAndUpdate(cloneEmail.email, {
+        isActive: true,
+      });
+      await this.usersService.removeHash(hashEmail.email);
+      return {
+        email: cloneEmail.email || 'test@example.com',
+      };
+    }
   }
 
   @Post('/register')
@@ -44,22 +71,23 @@ export class AuthController {
       const user = await this.usersService.findOne(body.email);
       if (!user) {
         await this.usersService.createUser(body);
-        request.session.notification = {
-          countShowToast: 0,
-        };
-        return response.redirect('/auth/login');
+        // request.session.notification = {
+        //   countShowToast: 0,
+        // };
+        request.session.email = body.email;
+        return response.redirect('/auth/notifi-register');
       }
-      request.session.notification = {
-        ...request.session.notification,
-        countShowErrorRegister: 0, // show error
-      };
+      // request.session.notification = {
+      //   ...request.session.notification,
+      //   countShowErrorRegister: 0, // show error
+      // };
       request.session.flashErrors = ['Email already registered'];
       return response.redirect('/auth/register');
     }
   }
 
   @Get('/login')
-  @Render('auth/login')
+  @Render('auth/login/login')
   renderLogin(@Req() request) {
     console.log(request.session, '*******************************');
     let isShowToast = false; // check if user created successfull then show toast
@@ -100,6 +128,10 @@ export class AuthController {
       return response.redirect('/auth/login');
     }
   }
+
+  @Get('/forgot')
+  @Render('auth/password/forgot-password')
+  forgotPassword() {}
 
   @Get('/logout')
   @Redirect('/')

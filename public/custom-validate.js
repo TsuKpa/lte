@@ -1,3 +1,9 @@
+// show Toast when create succeed const showToast =
+const showToast = document.getElementById('showToast');
+if (showToast) {
+  toastr.success('Create user success!');
+  showToast.remove();
+}
 $(function () {
   $.validator?.addMethod(
     'validatePassword',
@@ -107,6 +113,33 @@ $(function () {
       } else {
         element.closest('.input-group').append(error);
       }
+    },
+    highlight: function (element, errorClass, validClass) {
+      $(element).addClass('is-invalid');
+    },
+    unhighlight: function (element, errorClass, validClass) {
+      $(element).removeClass('is-invalid');
+    },
+  });
+
+  // Form forgot validate
+  $('#formForgot')?.validate({
+    rules: {
+      email: {
+        required: true,
+        validateEmail: true,
+      },
+    },
+    messages: {
+      email: {
+        required: 'Please enter a email address',
+        email: 'Please enter a valid email address',
+      },
+    },
+    errorElement: 'span',
+    errorPlacement: function (error, element) {
+      error.addClass('invalid-feedback');
+      element.closest('.input-group').append(error);
     },
     highlight: function (element, errorClass, validClass) {
       $(element).addClass('is-invalid');
