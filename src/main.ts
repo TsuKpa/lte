@@ -2,9 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
-import { hbs } from 'hbs';
-import { hbsUtils } from 'hbs-utils';
-import session from 'express-session';
+const hbs = require('hbs');
+const hbsUtils = require('hbs-utils');
+const session = require('express-session');
 import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
