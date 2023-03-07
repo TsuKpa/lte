@@ -30,6 +30,7 @@
     "admin-lte": "^3.2.0",
     "bcrypt": "^5.0.1",
     "express-session": "^1.17.2",
+    "mongoose": "^6.2.2",
     "hbs": "^4.2.0",
     "hbs-utils": "^0.0.4",
     "mysql2": "^2.3.3",
