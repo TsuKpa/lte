@@ -91,9 +91,9 @@ export class UsersService {
         '<h1>Welcome user ' +
         email +
         '!</h1><p>Please click the link below to active your account:</p><b><a href="' +
-        `http://${process.env.DOMAIN}/auth/verify/` +
+        `https://${process.env.DOMAIN}/auth/verify/` +
         hashedString +
-        '"></b>',
+        '" target="_blank">Click here</a></b>',
     });
   }
 
@@ -112,9 +112,9 @@ export class UsersService {
         '<h1>Welcome user ' +
         email +
         '!</h1><p>Please click the link below to change your password:</p><b><a href="' +
-        `http://${process.env.DOMAIN}/auth/changepwd/` +
+        `https://${process.env.DOMAIN}/auth/changepwd/` +
         hashedString +
-        '"></b>',
+        '" target="_blank">Click here</a></b>',
     });
   }
 
