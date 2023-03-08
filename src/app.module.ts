@@ -13,14 +13,14 @@ import { AuthModule } from './auth/auth.module';
       envFilePath: ['./environments/.env', './environments/.env.production'],
     }),
     MongooseModule.forRoot(
-      `mongodb://${
+      `mongodb+srv://${
         process.env.DB_USERNAME +
         ':' +
         process.env.DB_PASSWORD +
         '@' +
         process.env.DB_HOST +
-        ':' +
-        process.env.DB_PORT +
+        // ':' +
+        // process.env.DB_PORT +
         '/' +
         process.env.DB_NAME
       }`,
