@@ -89,7 +89,6 @@ export class AuthController {
   @Get('/login')
   @Render('auth/login/login')
   renderLogin(@Req() request) {
-    console.log(request.session, '*******************************');
     let isShowToast = false; // check if user created successfull then show toast
     if (request.session.notification?.countShowToast === 0) {
       isShowToast = true;
@@ -153,10 +152,10 @@ export class AuthController {
     if (user) {
       await this.usersService.sendEmailForgot(email);
       request.session.email = email;
+      console.log(request.session.email);
       return response.redirect('/auth/notifi-forgot');
     } else {
       request.session.flashErrors = ['Email is not exist!'];
-      console.log(request.session);
       request.session.notification = {
         ...request.session.notification,
         countShowError: 0, // show error
@@ -174,9 +173,52 @@ export class AuthController {
     };
   }
 
-  @Get('/changepwd')
+  @Get('/changepwd/:id')
   @Render('auth/password/change-password')
-  renderChangePassword() {}
+  async renderChangePassword(@Req() request, @Res() response, @Param('id') id) {
+    const emailHash = await this.usersService.findHash(id);
+    if (!emailHash) {
+      response.redirect('/auth/forgot');
+    }
+    request.session.recoverHash = id;
+  }
+
+  @Post('/recover')
+  async recoverPassword(
+    @Body() body: { password: string; password_confirm: string },
+    @Res() response,
+    @Req() request,
+  ) {
+    console.log(request.session, body, 'recoverpwd post data');
+    const { password, password_confirm } = body;
+    if (!password || !password_confirm || password !== password_confirm) return;
+    const emailHash = await this.usersService.findHash(
+      request.session.recoverHash,
+    );
+    if (!emailHash) {
+      response.redirect('/auth/forgot');
+    }
+    const email: string = Utils.cloneDeep(emailHash.email);
+    const hashedPassword: string = await Utils.createHash(password);
+    await this.usersService.findOneAndUpdate(email, {
+      password: hashedPassword,
+    });
+    await this.usersService.removeHash(email);
+    console.log('changed password for user: ', email);
+    request.session.email = email;
+    response.redirect('/auth/after-change'); // direct to notification page
+  }
+
+  @Get('/after-change')
+  @Render('auth/password/after-change')
+  renderNotificationChangedPwd(@Req() request, @Res() response) {
+    if (request.session.email) {
+      return {
+        email: request.session.email,
+      };
+    }
+    response.redirect('/auth/login');
+  }
 
   @Get('/logout')
   @Redirect('/')

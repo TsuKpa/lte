@@ -1,3 +1,4 @@
+import Utils from '@utils/utils';
 import {
   ConflictException,
   Injectable,
@@ -23,8 +24,7 @@ export class UsersService {
 
   async createUser(authCredentialsDto: UserEntity): Promise<void> {
     const { email, password } = authCredentialsDto;
-    const salt = await bcrypt.genSalt();
-    const hashedPassword: string = await bcrypt.hash(password, salt);
+    const hashedPassword: string = await Utils.createHash(password);
     const user = new this.userModel({
       email,
       password: hashedPassword,
@@ -61,10 +61,10 @@ export class UsersService {
     });
 
     const mailOptions = {
-      from: 'nqnamfe1996@gmail.com',
+      from: 'test@xxx.com',
       to: emailTo,
-      subject: 'Verify your account',
-      html: content,
+      subject: content.subject,
+      html: content.html,
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
@@ -78,8 +78,7 @@ export class UsersService {
 
   async sendEmailVerify(email: string): Promise<void> {
     if (!email) return;
-    const salt = await bcrypt.genSalt();
-    let hashedString: string = await bcrypt.hash(email, salt);
+    let hashedString: string = await Utils.createHash(email);
     hashedString = hashedString.replace(/\//g, 's');
     const emailHash = new this.emailModel({
       email,
@@ -100,8 +99,7 @@ export class UsersService {
 
   async sendEmailForgot(email: string): Promise<void> {
     if (!email) return;
-    const salt = await bcrypt.genSalt();
-    let hashedString: string = await bcrypt.hash(email, salt);
+    let hashedString: string = await Utils.createHash(email);
     hashedString = hashedString.replace(/\//g, 'f');
     const emailHash = new this.emailModel({
       email,
@@ -134,7 +132,6 @@ export class UsersService {
     password: string,
   ): Promise<Omit<UserEntity, 'password'>> {
     const user = await this.userModel.findOne({ email, isActive: true }).exec();
-    console.log(user, 'logging in');
     if (user && (await bcrypt.compare(password, user.password))) {
       const { password, ...result } = user;
       return result;
