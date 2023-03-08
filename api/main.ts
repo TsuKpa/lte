@@ -44,7 +44,7 @@ export default async function bootstrap() {
       res.redirect('/home');
     }
   });
-
+  // await app.listen(process.env.PORT || 3000);
   const logger = new Logger();
   logger.warn(`Server is running on port ${process.env.PORT}`);
 }
