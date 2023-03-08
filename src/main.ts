@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../src/app.module';
+import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 const hbs = require('hbs');
@@ -7,7 +7,7 @@ const hbsUtils = require('hbs-utils');
 const session = require('express-session');
 import { Logger } from '@nestjs/common';
 
-export default async function bootstrap() {
+async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.useStaticAssets(join(__dirname, '..', 'public'));
