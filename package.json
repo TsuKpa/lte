@@ -37,8 +37,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
-    "validator": "^13.7.0",
-    "vercel": "^28.16.15"
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.0.0",

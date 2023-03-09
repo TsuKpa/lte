@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from '../models/users.service';
 import { UserValidator } from '../validators/user.validator';
-import Utils from '../utils/utils';
+import Utils from '@utils/utils';
 
 @Controller('/auth')
 export class AuthController {
